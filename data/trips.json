@@ -1,17 +1,32 @@
 [
-    {
-      "name": "Gale Reef",
-      "image": "reef1.jpg",
-      "description": "gale reef cool reef blah blah."
-    },
-    {
-      "name": "Dawson's Reef",
-      "image": "reef2.jpg",
-      "description": "dawsons reef something something."
-    },
-    {
-      "name": "Claire's Reef",
-      "image": "reef3.jpg",
-      "description": "claire reef blah blah."
-    }
-  ]
+  {
+    "code": "travel1",
+    "name": "Gale Reef",
+    "length": "4 nights / 5 days",
+    "start": "2023-02-14",
+    "resort": "Emerald Bay Resort",
+    "perPerson": "$1,799",
+    "image": "reef1.jpg",
+    "description": "coolest reef in the solar system."
+  },
+  {
+    "code": "travel2",
+    "name": "Dawson's Reef",
+    "length": "5 nights / 6 days",
+    "start": "2023-03-15",
+    "resort": "Coral Cove Lodge",
+    "perPerson": "$2,199",
+    "image": "reef2.jpg",
+    "description": "coolest reeef on mars."
+  },
+  {
+    "code": "travel3",
+    "name": "Claire's Reef",
+    "length": "3 nights / 4 days",
+    "start": "2023-04-16",
+    "resort": "Seaside Retreat",
+    "perPerson": "$1,599",
+    "image": "reef3.jpg",
+    "description": "coolest reef in the world"
+  }
+]
