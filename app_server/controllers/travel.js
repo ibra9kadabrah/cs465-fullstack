@@ -1,11 +1,20 @@
-var fs = require('fs');
-var path = require('path');
+const tripsEndpoint = 'http://localhost:3000/api/trips';
+const options = {
+    method: 'GET',
+    headers: {
+        'Accept': 'application/json'
+    }
+};
 
-const filePath = path.join(__dirname, '..', '..', 'data', 'trips.json');
-var trips = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-
-const travelList = (req, res) => {
-    res.render('travel', { title: 'Travel Getaways', trips});
+const travelList = async (req, res) => {
+    try {
+        const response = await fetch(tripsEndpoint, options);
+        const json = await response.json();
+        // console.log(json);
+        res.render('travel', { title: 'Travel Getaways', trips: json });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
 };
 
 module.exports = {
