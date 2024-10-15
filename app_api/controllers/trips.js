@@ -1,7 +1,27 @@
-// app_api/controllers/trips.js
-
 const mongoose = require('mongoose');
 const Trip = mongoose.model('trips');
+const User = mongoose.model('users');
+
+const getUser = async (req, res, callback) => {
+  if (req.payload && req.payload.email) {
+    try {
+      const user = await User.findOne({ email: req.payload.email });
+      if (!user) {
+        console.log('User not found');
+        return res.status(404).json({ "message": "User not found" });
+      }
+      callback(req, res, user.name);
+    } catch (err) {
+      console.error('Error fetching user:', err);
+      return res.status(500).json({ "message": "Internal server error" });
+    }
+  } else {
+    console.log('No payload or email in request');
+    return res.status(404).json({ "message": "User not found" });
+  }
+};
+
+
 
 // GET: /trips - lists all the trips
 const tripsList = async (req, res) => {
@@ -13,30 +33,27 @@ const tripsList = async (req, res) => {
   }
 };
 
-// POST: /trips - Adds a new Trip
-const tripsAddTrip = async (req, res) => {
-  const newTrip = new Trip({
-    code: req.body.code,
-    name: req.body.name,
-    length: req.body.length,
-    start: req.body.start,
-    resort: req.body.resort,
-    perPerson: req.body.perPerson,
-    image: req.body.image,
-    description: req.body.description
-  });
 
-  try {
-    const q = await newTrip.save();
-    if (!q) {
-      // Database returned no data
-      return res.status(400).json({ error: 'Failed to add trip.' });
-    } else { // Return new trip
-      return res.status(201).json(q);
+const tripsAddTrip = async (req, res) => {
+  getUser(req, res, async (req, res, userName) => { 
+    try {
+      const trip = await Trip.create({
+        code: req.body.code,
+        name: req.body.name,
+        length: req.body.length,
+        start: req.body.start,
+        resort: req.body.resort,
+        perPerson: req.body.perPerson,
+        image: req.body.image,
+        description: req.body.description
+      });
+      console.log('Trip added successfully:', trip);
+      return res.status(201).json(trip);
+    } catch (err) {
+      console.error('Add Trip error:', err);
+      return res.status(400).json(err);
     }
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+  });
 };
 
 const tripsFindByCode = async (req, res) => {
@@ -55,11 +72,10 @@ const tripsFindByCode = async (req, res) => {
 };
 
 const tripsUpdateTrip = async (req, res) => {
-    console.log(req.params);
-    console.log(req.body);
+  await getUser(req, res, async (req, res, userName) => { // Make the callback async
     try {
-      const q = await Trip.findOneAndUpdate(
-        {'code': req.params.tripCode},
+      const trip = await Trip.findOneAndUpdate(
+        { 'code': req.params.tripCode },
         {
           code: req.body.code,
           name: req.body.name,
@@ -70,20 +86,31 @@ const tripsUpdateTrip = async (req, res) => {
           image: req.body.image,
           description: req.body.description
         },
-        { new: true }  // This option returns the updated document
-      ).exec();
-  
-      if (!q) {
-        return res.status(404).json({ message: "Trip not found" });
-      } else {
-        return res.status(200).json(q);
+        { new: true }
+      );
+
+      if (!trip) {
+        console.log('Trip not found with code:', req.params.tripCode);
+        return res.status(404).send({
+          message: "Trip not found with code " + req.params.tripCode
+        });
       }
+
+      console.log('Trip updated successfully:', trip);
+      return res.status(200).json(trip);
     } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Server error" });
+      console.error('Update Trip error:', err);
+      if (err.kind === 'ObjectId') {
+        return res.status(404).send({
+          message: "Trip not found with code " + req.params.tripCode
+        });
+      }
+      return res.status(500).json({ "message": "Internal server error" });
     }
-  };
-  
+  });
+};
+
+
 
 module.exports = {
   tripsList,
